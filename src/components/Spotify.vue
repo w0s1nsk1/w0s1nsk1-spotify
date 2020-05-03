@@ -1,15 +1,14 @@
 <template>
     <div class="hello">
-        <h5>
-            Tomek słucha{{ !spotify.is_playing ? 'ł ostatnio' : ' teraz'}}:
-        </h5>
-        <br>
-        <h2>
-            <a :href="spotify.item.external_urls.spotify">
-                <h5>{{ spotify.item.artists[0].name }}</h5>
-                <h4>{{ spotify.item.name }}</h4>
-            </a>
-        </h2>
+        <p>
+            Tomek słucha{{ spotify && !spotify.is_playing ? 'ł ostatnio' : ' teraz'}}:
+        </p>
+        <h1>
+            <h2>{{ spotify.item.artists.length > 1 ? spotify.item.artists.map((item) => { return item.name }).join(', ')
+            : spotify.item.artists[0].name }}</h2>
+            <h4>{{ spotify.item.name }}</h4>
+        </h1>
+        <a v-if="spotify" :href="spotify ? spotify.item.external_urls.spotify : ''">Posłuchaj razem z nim</a>
     </div>
 </template>
 
