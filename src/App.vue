@@ -2,7 +2,7 @@
     <div id="app">
         <img alt="Album" v-if="spotifyAPI" :src="spotifyAPI ? spotifyAPI.item.album.images[0].url : ''" width="280"
              class="album">
-        <img alt="Tomek" :src="'/' + (isListening ? 'music.png' : 'still.png')" width="275" class="avatar">
+        <img alt="Tomek" :src="tomekImage" width="275" class="avatar">
         <div class="progress_bar" style="width:50%"></div>
         <Spotify :spotify="spotifyAPI"></Spotify>
         <footer>Tomasz Wosinski {{ currentYear }} © Wszelkie prawa zastrzeżone</footer>
@@ -23,6 +23,7 @@
         data: () => {
             return {
                 spotifyToken: '',
+                spotifyGenres: [],
                 spotifyAPI: null
             }
         },
@@ -55,8 +56,25 @@
                         console.log(error);
                     })
             },
+            getArtist: function () {
+                if (this.spotifyAPI) {
+                    var that = this;
+                    const axios = require('axios').default;
+                    axios.get(`https://api.spotify.com/v1/artists/${this.spotifyAPI ? this.spotifyAPI.item.artists[0].id : ''}`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.spotifyToken}`
+                        }
+                    })
+                        .then(({data}) => {
+                            that.spotifyGenres = data.genres;
+                        })
+                        .catch(function () {
+                            // handle error
+                            that.getAccessToken();
+                        })
+                }
+            },
             getSpotifyPlayback: function () {
-                console.log(process.env);
                 var that = this;
                 const axios = require('axios').default;
                 axios.get('https://api.spotify.com/v1/me/player', {
@@ -65,22 +83,25 @@
                     }
                 })
                     .then(({data}) => {
-                        that.setSpotifyPlayback(data);
+                        if (data) {
+                            that.spotifyAPI = data;
+                            that.getArtist();
+                        }
                     })
                     .catch(function () {
                         // handle error
                         that.getAccessToken();
                     })
             },
-            setSpotifyPlayback: function (spotify) {
-                this.spotifyAPI = spotify;
-            },
-            setSpotifyToken: function (token) {
-                this.spotifyToken = token;
-            },
         },
         computed: {
-
+            tomekImage: function () {
+                const genres = this.spotifyGenres.join(',');
+                return '/' + (this.isListening ?
+                    (genres.includes('hardcore') || genres.includes('rock') || genres.includes('metal') ?
+                        'rock.png' : 'music.png') :
+                    'still.png');
+            },
             isListening() {
                 return this.spotifyAPI ? this.spotifyAPI.is_playing : false;
             },
@@ -116,7 +137,6 @@
         vertical-align: middle;
         border: 2px solid #ccc;
         z-index: 0;
-        filter: blur(1px);
     }
 
     .album {
