@@ -4,9 +4,9 @@
             Tomek słucha{{ spotify && !spotify.is_playing ? 'ł ostatnio' : ' teraz'}}:
         </p>
         <h1>
-            <h4>{{ spotify.item.artists.length > 1 ? spotify.item.artists.map((item) => { return item.name }).join(', ')
-            : spotify.item.artists[0].name }}</h4>
-            <h3>{{ spotify.item.name }}</h3>
+            <h6>{{ spotify.item.artists.length > 1 ? spotify.item.artists.map((item) => { return item.name }).join(', ')
+            : spotify.item.artists[0].name }}</h6>
+            <h5>{{ spotify.item.name }}</h5>
         </h1>
         <p><a v-if="spotify" :href="spotify ? spotify.item.external_urls.spotify : ''">Posłuchaj razem z nim</a></p>
         <br>
